@@ -1,3 +1,8 @@
+# Script Name: ARIMA HSI D.R
+# Author: Jingkai Sun (ks3020@ic.ac.uk)
+
+# predicting daily HSI dataset using ARIMA model
+
 #--------------------------------Loading Data----------------------------------------#
 fileName = "HSID.csv"
 defaultDataDir = "/Users/kyle/Documents/Economics Extended Essay/Data/HSI/"

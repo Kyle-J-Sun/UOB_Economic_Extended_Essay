@@ -1,3 +1,8 @@
+# Script Name: SVM for smvhsi.R
+# Author: Jingkai Sun (ks3020@ic.ac.uk)
+
+# predicting daily HSI data using SVM
+
 #--------------------------------Loading Data----------------------------------------
 fileName = "HSIDD.csv"
 defaultDataDir = "/Users/kyle/Documents/Economics Extended Essay/Data/NEW/"

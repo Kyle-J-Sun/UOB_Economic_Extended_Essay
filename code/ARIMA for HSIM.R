@@ -1,3 +1,8 @@
+# Script Name: ARIMA for HSIM.R
+# Author: Jingkai Sun (ks3020@ic.ac.uk)
+
+# predicting monthly HSI data using ARIMA
+
 #--------------------------------Loading Data----------------------------------------#
 fileName = "HSIMR.csv"
 defaultDataDir = "/Users/kyle/Documents/Economics Extended Essay/Data/HSI/"

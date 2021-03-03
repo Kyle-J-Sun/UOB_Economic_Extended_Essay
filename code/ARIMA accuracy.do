@@ -1,5 +1,7 @@
-cd "/Users/kyle/Documents/Economics Extended Essay/Data/HSI/"
-import delimited using "df3.csv", clear varname(1)
+cd "/Users/kyle/Documents/Economics Extended Essay/Data/HSI/" // cd data folder
+import delimited using "df3.csv", clear varname(1) // importing data
+
+// setting time series
 tsset v1
 g ar = d.actualprice/l.actualprice
 g pr = d.forecastedprice/l.forecastedprice
