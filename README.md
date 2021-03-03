@@ -1,4 +1,6 @@
 # UOB Economic Extended Essay
+
+__Author__: Jingkai (Kyle) Sun
 ## Predicting Heng Seng Index Close Price using ARIMA and Support Vector Regression Models
 
 ### Description
