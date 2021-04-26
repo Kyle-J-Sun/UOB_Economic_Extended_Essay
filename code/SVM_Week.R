@@ -1,6 +1,7 @@
+rm(list = ls())
 #--------------------------------Loading Data----------------------------------------#
 fileName = "Closeweek.csv"
-defaultDataDir = "/Users/kyle/Documents/UOB/Economics Extended Essay/Data/NEW/"
+defaultDataDir = "/Users/kyle/Documents/EEE/Data/"
 fileLocation = file.path(defaultDataDir, fileName)
 hsiww = read.csv(fileLocation, header = T)
 dim(hsiww)
@@ -15,12 +16,8 @@ library(kernlab)
 library(lattice)
 
 #-----------------------------define train and test data for 70%-------------------------------------#
-train_hsiww = data.frame(scale(hsiww[,2][1:706]), hsiww[,1][1:706], hsiww[,7][1:706], scale(hsiww[,3][1:706]), scale(hsiww[,4][1:706]), scale(hsiww[,5][1:706]), scale(hsiww[,6][1:706]), scale(hsiww[,8][1:706]))
-col.headings = c('Close', 'date', 'Weeks', 'SMA', 'RSI', 'ROC', 'CCI', 'MTM')
-names(train_hsiww) = col.headings
-
-train_hsiww2 = data.frame(hsiww[,2][1:706], hsiww[,1][1:706], hsiww[,7][1:706], scale(hsiww[,3][1:706]), scale(hsiww[,4][1:706]), scale(hsiww[,5][1:706]), scale(hsiww[,6][1:706]), scale(hsiww[,8][1:706]))
-col.headings = c('Close', 'date', 'Weeks', 'SMA', 'RSI', 'ROC', 'CCI', 'MTM')
+train_hsiww2 = data.frame(scale(hsiww[,2][1:706]), hsiww[,7][1:706], scale(hsiww[,3][1:706]), scale(hsiww[,4][1:706]), scale(hsiww[,5][1:706]), scale(hsiww[,6][1:706]), scale(hsiww[,8][1:706]))
+col.headings = c('Close', 'Weeks', 'SMA', 'RSI', 'ROC', 'CCI', 'MTM')
 names(train_hsiww2) = col.headings
 ggplot() + 
   geom_line(aes(x = train_hsiww2$Weeks, y = train_hsiww2$Close), colour = 'black') +
@@ -28,14 +25,15 @@ ggplot() +
   xlab('Weeks') +
   ylab('Closing price')
 
-test_hsiww = data.frame(scale(hsiww[,2][707:758]), hsiww[,1][707:758], hsiww[,7][707:758], scale(hsiww[,3][707:758]), scale(hsiww[,4][707:758]), scale(hsiww[,5][707:758]), scale(hsiww[,6][707:758]), scale(hsiww[,8][707:758]))
+test_hsiww = data.frame(scale(hsiww[,2][707:758]), hsiww[,7][707:758], scale(hsiww[,3][707:758]), scale(hsiww[,4][707:758]), scale(hsiww[,5][707:758]), scale(hsiww[,6][707:758]), scale(hsiww[,8][707:758]))
 names(test_hsiww) = col.headings
+
 #----------------------------- fitting SVM-------------------------------------#
-regressor_rad = svm(formula = Close ~ SMA + MTM + CCI + RSI, data = train_hsiww, type = 'eps-regression', kernel = 'radial', cost = 45, sigma = 0.01)
-regressor_poly = svm(formula = Close ~ SMA + MTM + CCI + RSI, data = train_hsiww, type = 'eps-regression', kernel = 'polynomial', cost = 1, degree = 3)
-regressor_lin = svm(formula = Close ~ SMA + MTM + CCI + RSI, data = train_hsiww, type = 'eps-regression', kernel = 'linear', cost = 0.25)
+regressor_rad = svm(formula = Close ~ SMA + MTM + CCI + RSI, data = train_hsiww2, type = 'eps-regression', kernel = 'radial', cost = 45, sigma = 0.01)
+regressor_poly = svm(formula = Close ~ SMA + MTM + CCI + RSI, data = train_hsiww2, type = 'eps-regression', kernel = 'polynomial', cost = 1, degree = 3)
+regressor_lin = svm(formula = Close ~ SMA + MTM + CCI + RSI, data = train_hsiww2, type = 'eps-regression', kernel = 'linear', cost = 0.25)
 par(mfrow = c(1,1))
-plot(train_hsiww$Weeks, train_hsiww$Close, type = 'l', lwd = '1', col = 'orange', xlab = "Weeks", ylab = "Scaled Closing Price of HSI")
+plot(train_hsiww2$Weeks, train_hsiww2$Close, type = 'l', lwd = '1', col = 'orange', xlab = "Weeks", ylab = "Scaled Closing Price of HSI")
 lines(fitted(regressor_rad), col = 3)
 lines(fitted(regressor_lin), col = 4)
 lines(fitted(regressor_poly), col = 'grey')
@@ -43,9 +41,9 @@ legend("topleft", legend = c("Actual", "Fitting of Linear SVR", "Fitting of Poly
 title("Fitting of three SVRs")
 
 #-----------------------------Prediction of SVM-------------------------------------#
-predictor_lin = predict(regressor_lin, test_hsiww)
-predictor_poly = predict(regressor_poly,test_hsiww)
-predictor_rad = predict(regressor_rad,test_hsiww)
+predictor_lin = predict(regressor_lin, cbind(test_hsiww[,3:4], test_hsiww[,6:7]))
+predictor_poly = predict(regressor_poly, cbind(test_hsiww[,3:4], test_hsiww[,6:7]))
+predictor_rad = predict(regressor_rad, cbind(test_hsiww[,3:4], test_hsiww[,6:7]))
 
 lin = predictor_lin * sd(hsiww[,2][707:758]) + mean(hsiww[,2][707:758]) #unscale
 poly = predictor_poly * sd(hsiww[,2][707:758]) + mean(hsiww[,2][707:758]) #unscale
@@ -96,8 +94,8 @@ control = trainControl(method = 'repeatedcv', number = 10, repeats = 5)
 model1 = train(Close ~ SMA + RSI + MTM + CCI, data = train_hsiww, method = 'svmRadial', trControl = control, tuneGrid = svrGrid)
 print(model1)
 plot(model1) 
-?train
-?trainControl
+# ?train
+# ?trainControl
 
 model2 = train(Close ~ SMA + RSI + MTM + CCI, data = train_hsiww, method = 'svmPoly', trControl = control, tuneGrid = svrGrid1)
 print(model2)

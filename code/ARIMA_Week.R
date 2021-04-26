@@ -1,6 +1,7 @@
+rm(list = ls())
 #--------------------------------Loading Data----------------------------------------#
 fileName = "Closeweek.csv"
-defaultDataDir = "/Users/kyle/Documents/UOB/Economics Extended Essay/Data/NEW/"
+defaultDataDir = "/Users/kyle/Documents/EEE/Data/"
 fileLocation = file.path(defaultDataDir, fileName)
 hsiweek = read.csv(fileLocation, header = T)
 dim(hsiweek)
@@ -54,27 +55,28 @@ par(mfrow = c(1,2))
 acf(difftrain_hsi, main = 'ACF test for training data')      
 pacf(difftrain_hsi, main = 'PACF test for training data') 
 
-#------------------------------Runing Data using Auto ARIMA-------------------------------#
+#------------------------------Running Data using Auto ARIMA-------------------------------#
 tsarima = ts(train_hsiweek, start = c(1,1), frequency = 1)
-fitA = arima(tsarima, order = c(7,2,1), optim.control = list(maxit = 1000))
-tsdisplay(residuals(fitA), lag.max = 40, main = 'Residuals (7,2,1)')
+fitA = arima(tsarima, order = c(0,1,0), optim.control = list(maxit = 1000))
+tsdisplay(residuals(fitA), lag.max = 40, main = 'Residuals (0,1,0)')
 BIC(fitA)
 summary(fitA)
 #AIC = -2781.12 BIC = -2735.549
 
-fitB = arima(tsarima, order = c(5,2,1), optim.control = list(maxit = 1000), method = "ML")
-tsdisplay(residuals(fitB), lag.max = 40, main = 'Residuals (5,2,1)')
+fitB = arima(tsarima, order = c(0,1,1), optim.control = list(maxit = 1000), method = "ML")
+tsdisplay(residuals(fitB), lag.max = 40, main = 'Residuals (0,1,1)')
 BIC(fitB)
-accuracy(fitB)
+# accuracy(fitB)
 summary(fitB)
 par(mfrow = c(1,1))
-plot(tsarima, xlab = 'Weeks', ylab = "HSI Index Price (Log)", main = 'The fit of ARIMA (5,2,1)')
+plot(tsarima, xlab = 'Weeks', ylab = "HSI Index Price (Log)", main = 'The fit of ARIMA (0,1,1)')
 lines(fitted(fitB), col = 'red')
 #AIC = -2783.41 BIC = -2751.513
 
-fitC = arima(tsarima, order = c(12,2,2), optim.control = list(maxit = 1000))
-tsdisplay(residuals(fitC), lag.max = 40, main = 'Residuals (12,2,2)')
+fitC = arima(tsarima, order = c(1,1,1), optim.control = list(maxit = 1000))
+tsdisplay(residuals(fitC), lag.max = 40, main = 'Residuals (1,1,1)')
 BIC(fitC)
+summary(fitC)
 #AIC = -2778.59 BIC = -2710.242
 
 #----------------------------------Runing Data using Auto ARIMA----------------------------------#
@@ -89,11 +91,11 @@ final_facast1 = exp(fcast1_ext)
 
 par(mfrow = c(1,3))
 fcast21 = forecast(fitB, h = 319)
-plot(fcast2, xlab = 'Weeks', ylab = 'Logarithmic losing price in HSI', main = "Frecasts from ARIMA (5,2,1) for 319 weeks")
+plot(fcast21, xlab = 'Weeks', ylab = 'Logarithmic losing price in HSI', main = "Frecasts from ARIMA (5,2,1) for 319 weeks")
 fcast22 = forecast(fitB, h = 104)
-plot(fcast2, xlab = 'Weeks', ylab = 'Logarithmic losing price in HSI', main = "Frecasts from ARIMA (5,2,1) for 104 weeks")
+plot(fcast22, xlab = 'Weeks', ylab = 'Logarithmic losing price in HSI', main = "Frecasts from ARIMA (5,2,1) for 104 weeks")
 fcast23 = forecast(fitB, h = 52)
-plot(fcast2, xlab = 'Weeks', ylab = 'Logarithmic losing price in HSI', main = "Frecasts from ARIMA (5,2,1) for 52 weeks")
+plot(fcast23, xlab = 'Weeks', ylab = 'Logarithmic losing price in HSI', main = "Frecasts from ARIMA (5,2,1) for 52 weeks")
 fcast21_ext = as.numeric(fcast21$mean)
 final_facast21 = exp(fcast21_ext)
 fcast22_ext = as.numeric(fcast22$mean)
@@ -148,7 +150,7 @@ par(mfrow = c(1,2))
 acf(fitB$residuals, main = 'ACF of residuals')    
 pacf(fitB$residuals, main = 'PACF of residuals')
 
-Box.test(fitC$residuals, lag = 15, type = 'Ljung-Box')
+Box.test(fitC$residuals, lag = 30, type = 'Ljung-Box')
 par(mfrow = c(1,2))
 acf(fitC$residuals, main = 'ACF of residuals')    
 pacf(fitC$residuals, main = 'PACF of residuals')
@@ -179,4 +181,4 @@ ggplot() +
 Acc = data.frame(hsiweek[,7][707:1025], hsiweek[,2][707:1025], df2$`Forecasted Price`, table_lin[,2], table_rad[,2])
 col.headings = c('Weeks', 'ap', 'fp_arima_522','fp_lin', 'fp_rad')
 names(Acc) = col.headings
-write.csv(Acc, file = "/Users/kyle/Documents/UOB/Economics Extended Essay/Data/NEW/Accuracy2.csv")
+write.csv(Acc, file = "/Users/kyle/Documents/EEE/result/Accuracy2.csv")
